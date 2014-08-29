@@ -11,8 +11,6 @@ class Minefield
     @mine_count = mine_count
     count = 1
     coordinate_array = []
-    # x_rand = 0
-    # y_rand = 0
 
     #create minefield with all values initialized to false
     for x in 0..@row_count - 1 do
@@ -44,6 +42,16 @@ class Minefield
     @cleared_field[[row,col]]
   end
 
+
+  def inbounds?(array)
+    if array[0] == 0 || array[1] == 0 || array[0] == @mine_count || array[1] == @mine_count
+      return false
+    else
+      return true
+    end
+
+  end
+
   # Uncover the given cell. If there are no adjacent mines to this cell
   # it should also clear any adjacent cells as well. This is the action
   # when the player clicks on the cell.
@@ -51,13 +59,18 @@ class Minefield
 
     @cleared_field[[row,col]] = true
 
-    for x in row - 1 .. row + 1
-      for y in col - 1 .. col + 1
-        if @mine_field[[x, y]] == false
-          @cleared_field[[x, y]] = true
+      for x in row - 1 .. row + 1
+        for y in col - 1 .. col + 1
+          print "\n1. [#{x}. #{y}]\t"
+          if @mine_field[[x, y]] == false
+            @cleared_field[[x, y]] = true
+            print "2. [#{x}. #{y}]\n"
+              if inbounds?([x,y])
+                clear(x,y)
+              end
+          end
         end
       end
-    end
 
     @cleared_field[[row,col]]
   end
