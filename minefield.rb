@@ -13,13 +13,11 @@ class Minefield
     coordinate_array = []
 
     #create minefield with all values initialized to false
-    for x in 0..@row_count - 1 do
-      for y in 0..@column_count - 1 do
+    for x in 0...@row_count do
+      for y in 0...@column_count do
         @mine_field[[x, y]] = false
         @cleared_field[[x, y]] = false
-      y += 1
       end
-    x += 1
     end
 
     #generate mine_count # of random
@@ -44,33 +42,21 @@ class Minefield
 
 
   def inbounds?(array)
-    if array[0] == 0 || array[1] == 0 || array[0] == @mine_count || array[1] == @mine_count
-      return false
-    else
-      return true
-    end
-
+   !(array[0] < 0 || array[1] < 0 || array[0] >= @mine_count || array[1] >= @mine_count)
   end
 
   # Uncover the given cell. If there are no adjacent mines to this cell
   # it should also clear any adjacent cells as well. This is the action
   # when the player clicks on the cell.
   def clear(row, col)
-
-    @cleared_field[[row,col]] = true
-
-      for x in row - 1 .. row + 1
-        for y in col - 1 .. col + 1
-          print "\n1. [#{x}. #{y}]\t"
-          if @mine_field[[x, y]] == false
-            @cleared_field[[x, y]] = true
-            print "2. [#{x}. #{y}]\n"
-              if inbounds?([x,y])
-                clear(x,y)
-              end
-          end
+    if inbounds?([row,col]) && !@cleared_field[[row,col]]
+      @cleared_field[[row,col]] = true
+      if adjacent_mines(row, col) == 0
+        adjacent_cells(row, col).each do |cell|
+          clear(cell[0], cell[1])
         end
       end
+    end
 
     @cleared_field[[row,col]]
   end
@@ -78,7 +64,6 @@ class Minefield
   # Check if any cells have been uncovered that also contained a mine. This is
   # the condition used to see if the player has lost the game.
   def any_mines_detonated?
-    #if a field is cleared & @mine_field is true then return true
     for x in 0..@row_count - 1 do
       for y in 0..@column_count - 1 do
         if @cleared_field[[x,y]] && @mine_field[[x,y]]
@@ -106,14 +91,24 @@ class Minefield
   # Returns the number of mines that are surrounding this cell (maximum of 8).
   def adjacent_mines(row, col)
     count = 0
-    for x in row - 1 .. row + 1
-      for y in col - 1 .. col + 1
-        if @mine_field[[x, y]] == true
-          count += 1
-        end
+    adjacent_cells(row,col).each do |cell|
+      if @mine_field[cell]
+        count += 1
       end
     end
-    count - 1
+
+    count
+  end
+
+  def adjacent_cells(row, col)
+      array = []
+      for x in row - 1 .. row + 1
+        for y in col - 1 .. col + 1
+          array << [x,y]
+        end
+      end
+      array.delete([row,col])
+      array
   end
 
   # Returns true if the given cell contains a mine, false otherwise.
