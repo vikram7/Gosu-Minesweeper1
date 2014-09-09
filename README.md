@@ -1,3 +1,7 @@
+Todo:
+
+need to fix bug when user clicks on squares on right side of screen (which opens up squares on opposite of screen)
+
 Minesweeper
 Noncore Curriculum Individual
 Minesweeper
